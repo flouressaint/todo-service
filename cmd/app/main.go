@@ -1,8 +1,9 @@
 package main
 
 import (
-	"github.com/flouressaint/todo-service/internal/app"
 	"log"
+
+	"github.com/flouressaint/todo-service/internal/app"
 )
 
 const configPath = "config/config.yaml"
