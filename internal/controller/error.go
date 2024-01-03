@@ -1,14 +1,9 @@
-package endpoint
+package controller
 
 import (
 	"errors"
-	"fmt"
-	"github.com/labstack/echo/v4"
-)
 
-var (
-	ErrInvalidAuthHeader = fmt.Errorf("invalid auth header")
-	ErrCannotParseToken  = fmt.Errorf("cannot parse token")
+	"github.com/labstack/echo/v4"
 )
 
 func newErrorResponse(c echo.Context, errStatus int, message string) {

@@ -1,4 +1,4 @@
-package endpoint
+package controller
 
 import (
 	"net/http"
@@ -9,39 +9,22 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type Endpoint struct {
-	s *service.Service
+type todoRoutes struct {
+	todoService service.Todo
 }
 
-func New(s *service.Service) *Endpoint {
-	return &Endpoint{s: s}
+func newTodoRoutes(g *echo.Group, todoService service.Todo) {
+	r := &todoRoutes{
+		todoService: todoService,
+	}
+
+	g.POST("", r.CreateTodo)
+	g.GET("", r.GetTodos)
+	g.DELETE("/:id", r.DeleteTodo)
+	g.PUT("/:id", r.UpdateTodo)
 }
 
-func (e *Endpoint) CreateUser(c echo.Context) error {
-	var input entity.User
-
-	if err := c.Bind(&input); err != nil {
-		newErrorResponse(c, http.StatusBadRequest, err.Error())
-		return err
-	}
-
-	if err := c.Validate(&input); err != nil {
-		newErrorResponse(c, http.StatusBadRequest, err.Error())
-		return err
-	}
-
-	id, err := e.s.CreateUser(input)
-	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
-		return err
-	}
-
-	return c.JSON(http.StatusOK, map[string]interface{}{
-		"id": id,
-	})
-}
-
-func (e *Endpoint) CreateTodo(c echo.Context) error {
+func (r *todoRoutes) CreateTodo(c echo.Context) error {
 	var input entity.Todo
 	if err := c.Bind(&input); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
@@ -53,7 +36,7 @@ func (e *Endpoint) CreateTodo(c echo.Context) error {
 		return err
 	}
 
-	id, err := e.s.CreateTodo(input)
+	id, err := r.todoService.CreateTodo(input)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return err
@@ -64,7 +47,7 @@ func (e *Endpoint) CreateTodo(c echo.Context) error {
 	})
 }
 
-func (e *Endpoint) GetTodos(c echo.Context) error {
+func (r *todoRoutes) GetTodos(c echo.Context) error {
 	type UserId struct {
 		UserId int `json:"user_id" binding:"required"`
 	}
@@ -79,7 +62,7 @@ func (e *Endpoint) GetTodos(c echo.Context) error {
 		return err
 	}
 
-	todos, err := e.s.GetTodos(input.UserId)
+	todos, err := r.todoService.GetTodos(input.UserId)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return err
@@ -88,14 +71,14 @@ func (e *Endpoint) GetTodos(c echo.Context) error {
 	return c.JSON(http.StatusOK, todos)
 }
 
-func (e *Endpoint) DeleteTodo(c echo.Context) error {
+func (r *todoRoutes) DeleteTodo(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return err
 	}
 
-	err = e.s.DeleteTodo(id)
+	err = r.todoService.DeleteTodo(id)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return err
@@ -106,7 +89,7 @@ func (e *Endpoint) DeleteTodo(c echo.Context) error {
 	})
 }
 
-func (e *Endpoint) UpdateTodo(c echo.Context) error {
+func (r *todoRoutes) UpdateTodo(c echo.Context) error {
 	var input entity.Todo
 	if err := c.Bind(&input); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
@@ -123,7 +106,7 @@ func (e *Endpoint) UpdateTodo(c echo.Context) error {
 		return err
 	}
 
-	err = e.s.UpdateTodo(id, input)
+	err = r.todoService.UpdateTodo(id, input)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return err

@@ -2,41 +2,32 @@ package service
 
 import (
 	"github.com/flouressaint/todo-service/internal/entity"
-	"github.com/flouressaint/todo-service/internal/repository"
+	"github.com/flouressaint/todo-service/internal/repo"
 )
 
-type Service struct {
-	r *repository.Repository
+type User interface {
+	CreateUser(user entity.User) (int, error)
 }
 
-func New(r *repository.Repository) *Service {
-	return &Service{r: r}
+type Todo interface {
+	CreateTodo(todo entity.Todo) (int, error)
+	GetTodos(userId int) ([]entity.Todo, error)
+	DeleteTodo(id int) error
+	UpdateTodo(id int, newTodo entity.Todo) error
 }
 
-func (s *Service) CreateUser(user entity.User) (int, error) {
-	return s.r.CreateUser(user)
+type Services struct {
+	User User
+	Todo Todo
 }
 
-func (s *Service) CreateTodo(todo entity.Todo) (int, error) {
-	return s.r.CreateTodo(todo)
+type ServicesDependencies struct {
+	Repo *repo.Repositories
 }
 
-func (s *Service) GetTodos(userId int) ([]entity.Todo, error) {
-	return s.r.GetTodos(userId)
-}
-
-func (s *Service) DeleteTodo(id int) error {
-	todo, err := s.r.GetTodo(id)
-	if err != nil {
-		return err
+func NewServices(deps ServicesDependencies) *Services {
+	return &Services{
+		User: NewUserService(deps.Repo.User),
+		Todo: NewTodoService(deps.Repo.Todo),
 	}
-	return s.r.DeleteTodo(todo)
-}
-
-func (s *Service) UpdateTodo(id int, newTodo entity.Todo) error {
-	todo, err := s.r.GetTodo(id)
-	if err != nil {
-		return err
-	}
-	return s.r.UpdateTodo(todo, newTodo)
 }
