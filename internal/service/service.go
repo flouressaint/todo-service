@@ -12,7 +12,7 @@ type User interface {
 type Todo interface {
 	CreateTodo(todo entity.Todo) (int, error)
 	GetTodos(userId int) ([]entity.Todo, error)
-	DeleteTodo(id int) error
+	DeleteTodo(id, userId int) error
 	UpdateTodo(id int, newTodo entity.Todo) error
 }
 

@@ -12,6 +12,9 @@ import (
 type todoRoutes struct {
 	todoService service.Todo
 }
+type UserId struct {
+	UserId int `json:"user_id" validate:"required"`
+}
 
 func newTodoRoutes(g *echo.Group, todoService service.Todo) {
 	r := &todoRoutes{
@@ -30,7 +33,6 @@ func (r *todoRoutes) CreateTodo(c echo.Context) error {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return err
 	}
-
 	if err := c.Validate(&input); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return err
@@ -48,15 +50,11 @@ func (r *todoRoutes) CreateTodo(c echo.Context) error {
 }
 
 func (r *todoRoutes) GetTodos(c echo.Context) error {
-	type UserId struct {
-		UserId int `json:"user_id" binding:"required"`
-	}
 	var input UserId
 	if err := c.Bind(&input); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return err
 	}
-
 	if err := c.Validate(&input); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return err
@@ -78,7 +76,17 @@ func (r *todoRoutes) DeleteTodo(c echo.Context) error {
 		return err
 	}
 
-	err = r.todoService.DeleteTodo(id)
+	var input UserId
+	if err := c.Bind(&input); err != nil {
+		newErrorResponse(c, http.StatusBadRequest, err.Error())
+		return err
+	}
+	if err := c.Validate(&input); err != nil {
+		newErrorResponse(c, http.StatusBadRequest, err.Error())
+		return err
+	}
+
+	err = r.todoService.DeleteTodo(id, input.UserId)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return err

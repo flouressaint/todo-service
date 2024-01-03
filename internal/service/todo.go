@@ -23,18 +23,10 @@ func (s *TodoService) GetTodos(userId int) ([]entity.Todo, error) {
 	return s.todoRepo.GetTodos(userId)
 }
 
-func (s *TodoService) DeleteTodo(id int) error {
-	todo, err := s.todoRepo.GetTodo(id)
-	if err != nil {
-		return err
-	}
-	return s.todoRepo.DeleteTodo(todo)
+func (s *TodoService) DeleteTodo(id, userId int) error {
+	return s.todoRepo.DeleteTodo(id, userId)
 }
 
 func (s *TodoService) UpdateTodo(id int, newTodo entity.Todo) error {
-	todo, err := s.todoRepo.GetTodo(id)
-	if err != nil {
-		return err
-	}
-	return s.todoRepo.UpdateTodo(todo, newTodo)
+	return s.todoRepo.UpdateTodo(id, newTodo)
 }
