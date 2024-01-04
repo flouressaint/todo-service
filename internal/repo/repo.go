@@ -40,7 +40,7 @@ func NewRepositories(config config.Config) *Repositories {
 	if err != nil {
 		log.Fatal("Failed to connect to the Database")
 	}
-	fmt.Println("? Connected Successfully to the Database")
+	log.Println("Connected Successfully to the Database")
 
 	return &Repositories{
 		User: NewUserRepo(db),
