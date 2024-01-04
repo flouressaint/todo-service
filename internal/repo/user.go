@@ -18,7 +18,7 @@ func NewUserRepo(db *gorm.DB) *UserRepo {
 	if err != nil {
 		log.Fatal("Failed to migrate User in the Database")
 	}
-	fmt.Println("? Migration User complete")
+	log.Println("Migration User complete")
 	return &UserRepo{db}
 }
 

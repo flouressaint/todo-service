@@ -18,7 +18,7 @@ func NewTodoRepo(db *gorm.DB) *TodoRepo {
 	if err != nil {
 		log.Fatal("Failed to migrate Todo in the Database")
 	}
-	fmt.Println("? Migration Todo complete")
+	log.Println("Migration Todo complete")
 	return &TodoRepo{db}
 }
 
