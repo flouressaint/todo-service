@@ -23,11 +23,8 @@ func NewUserRepo(db *gorm.DB) *UserRepo {
 }
 
 func (r *UserRepo) CreateUser(user entity.User) (int, error) {
-	if err := r.db.First(&user, "username = ?", user.Username).Error; err == nil {
-		return user.Id, fmt.Errorf("user with name %s already exists", user.Username)
-	}
 	if err := r.db.Create(&user).Error; err != nil {
-		return user.Id, err
+		return user.Id, fmt.Errorf("user with name %s already exists", user.Username)
 	}
 	return user.Id, nil
 }
