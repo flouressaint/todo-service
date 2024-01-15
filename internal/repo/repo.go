@@ -6,6 +6,7 @@ import (
 
 	"github.com/flouressaint/todo-service/config"
 	"github.com/flouressaint/todo-service/internal/entity"
+	"github.com/google/uuid"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -15,10 +16,10 @@ type User interface {
 }
 
 type Todo interface {
-	CreateTodo(todo entity.Todo) (int, error)
-	GetTodos(userId int) ([]entity.Todo, error)
-	DeleteTodo(id, userId int) error
-	UpdateTodo(id int, newTodo entity.Todo) error
+	CreateTodo(todo entity.Todo) (uuid.UUID, error)
+	GetTodos(userId uuid.UUID) ([]entity.Todo, error)
+	DeleteTodo(id, userId uuid.UUID) error
+	UpdateTodo(id uuid.UUID, newTodo entity.Todo) error
 }
 
 type Repositories struct {
