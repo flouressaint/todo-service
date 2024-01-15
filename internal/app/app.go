@@ -15,6 +15,17 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+// @title           Todo Service
+// @version         1.0
+// @description     This is a service for managing todos.
+// @contact.name   Kadomtcev Vyacheslav
+// @contact.tg	   @flouressaint
+// @host      localhost:8000
+// @BasePath  /
+// @securityDefinitions.apikey  BearerAuth
+// @in                          header
+// @name                        Authorization
+// @description					JWT token
 func Run() {
 	// config
 	cfg, err := config.New(".")
@@ -25,7 +36,8 @@ func Run() {
 	repositories := repo.NewRepositories(cfg)
 
 	deps := service.ServicesDependencies{
-		Repo: repositories,
+		Repo:    repositories,
+		SignKey: cfg.JwtSignKey,
 	}
 	services := service.NewServices(deps)
 
