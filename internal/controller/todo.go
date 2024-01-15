@@ -2,18 +2,15 @@ package controller
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/flouressaint/todo-service/internal/entity"
 	"github.com/flouressaint/todo-service/internal/service"
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 )
 
 type todoRoutes struct {
 	todoService service.Todo
-}
-type UserId struct {
-	UserId int `json:"user_id" validate:"required"`
 }
 
 func newTodoRoutes(g *echo.Group, todoService service.Todo) {
@@ -27,8 +24,24 @@ func newTodoRoutes(g *echo.Group, todoService service.Todo) {
 	g.PUT("/:id", r.UpdateTodo)
 }
 
+type todoInput struct {
+	Title     string `json:"title" validate:"required"`
+	Completed bool   `json:"completed"`
+}
+
+// @Summary Create todo
+// @Description Create todo
+// @Tags todos
+// @Accept json
+// @Produce json
+// @Param input body todoInput true "input"
+// @Success 201 {object} controller.todoRoutes.CreateTodo.response
+// @Failure 400 {object} echo.HTTPError
+// @Failure 500 {object} echo.HTTPError
+// @Security BearerAuth
+// @Router /api/todo [post]
 func (r *todoRoutes) CreateTodo(c echo.Context) error {
-	var input entity.Todo
+	var input todoInput
 	if err := c.Bind(&input); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return err
@@ -37,30 +50,39 @@ func (r *todoRoutes) CreateTodo(c echo.Context) error {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return err
 	}
+	data := entity.Todo{
+		UserId:    c.Get("userId").(uuid.UUID),
+		Title:     input.Title,
+		Completed: input.Completed,
+	}
 
-	id, err := r.todoService.CreateTodo(input)
+	id, err := r.todoService.CreateTodo(data)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return err
 	}
 
-	return c.JSON(http.StatusOK, map[string]interface{}{
-		"id": id,
+	type response struct {
+		Id uuid.UUID `json:"id"`
+	}
+
+	return c.JSON(http.StatusCreated, response{
+		Id: id,
 	})
 }
 
+// @Summary Get todos
+// @Description Get todos
+// @Tags todos
+// @Accept json
+// @Produce json
+// @Success 200 {array} entity.Todo
+// @Failure 500 {object} echo.HTTPError
+// @Security BearerAuth
+// @Router /api/todo [get]
 func (r *todoRoutes) GetTodos(c echo.Context) error {
-	var input UserId
-	if err := c.Bind(&input); err != nil {
-		newErrorResponse(c, http.StatusBadRequest, err.Error())
-		return err
-	}
-	if err := c.Validate(&input); err != nil {
-		newErrorResponse(c, http.StatusBadRequest, err.Error())
-		return err
-	}
-
-	todos, err := r.todoService.GetTodos(input.UserId)
+	userId := c.Get("userId").(uuid.UUID)
+	todos, err := r.todoService.GetTodos(userId)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return err
@@ -69,36 +91,53 @@ func (r *todoRoutes) GetTodos(c echo.Context) error {
 	return c.JSON(http.StatusOK, todos)
 }
 
+// @Summary Delete todo
+// @Description Delete todo
+// @Tags todos
+// @Produce json
+// @Param id path string true "id"
+// @Success 200 {object} controller.todoRoutes.DeleteTodo.response
+// @Failure 400 {object} echo.HTTPError
+// @Failure 500 {object} echo.HTTPError
+// @Security BearerAuth
+// @Router /api/todo/{id} [delete]
 func (r *todoRoutes) DeleteTodo(c echo.Context) error {
-	id, err := strconv.Atoi(c.Param("id"))
+	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return err
 	}
+	userId := c.Get("userId").(uuid.UUID)
 
-	var input UserId
-	if err := c.Bind(&input); err != nil {
-		newErrorResponse(c, http.StatusBadRequest, err.Error())
-		return err
-	}
-	if err := c.Validate(&input); err != nil {
-		newErrorResponse(c, http.StatusBadRequest, err.Error())
-		return err
-	}
-
-	err = r.todoService.DeleteTodo(id, input.UserId)
+	err = r.todoService.DeleteTodo(id, userId)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return err
 	}
 
-	return c.JSON(http.StatusOK, map[string]interface{}{
-		"status": "ok",
+	type response struct {
+		Status string `json:"status"`
+	}
+
+	return c.JSON(http.StatusOK, response{
+		Status: "ok",
 	})
 }
 
+// @Summary Update todo
+// @Description Update todo
+// @Tags todos
+// @Accept json
+// @Produce json
+// @Param id path string true "id"
+// @Param input body todoInput true "input"
+// @Success 200 {object} controller.todoRoutes.UpdateTodo.response
+// @Failure 400 {object} echo.HTTPError
+// @Failure 500 {object} echo.HTTPError
+// @Security BearerAuth
+// @Router /api/todo/{id} [put]
 func (r *todoRoutes) UpdateTodo(c echo.Context) error {
-	var input entity.Todo
+	var input todoInput
 	if err := c.Bind(&input); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return err
@@ -108,19 +147,29 @@ func (r *todoRoutes) UpdateTodo(c echo.Context) error {
 		return err
 	}
 
-	id, err := strconv.Atoi(c.Param("id"))
+	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return err
 	}
 
-	err = r.todoService.UpdateTodo(id, input)
+	data := entity.Todo{
+		UserId:    c.Get("userId").(uuid.UUID),
+		Title:     input.Title,
+		Completed: input.Completed,
+	}
+
+	err = r.todoService.UpdateTodo(id, data)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return err
 	}
 
-	return c.JSON(http.StatusOK, map[string]interface{}{
-		"status": "ok",
+	type response struct {
+		Status string `json:"status"`
+	}
+
+	return c.JSON(http.StatusOK, response{
+		Status: "ok",
 	})
 }

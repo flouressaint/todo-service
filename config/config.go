@@ -12,6 +12,7 @@ type Config struct {
 	DBPort       string `mapstructure:"POSTGRES_PORT"`
 	ServerPort   string `mapstructure:"PORT"`
 	ClientOrigin string `mapstructure:"CLIENT_ORIGIN"`
+	JwtSignKey   string `mapstructure:"JWT_SIGN_KEY"`
 }
 
 func New(path string) (config Config, err error) {
