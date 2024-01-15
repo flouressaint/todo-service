@@ -44,7 +44,7 @@ func (r *TodoRepo) DeleteTodo(id, userId uuid.UUID) error {
 		return err
 	}
 	if todo.UserId != userId {
-		return fmt.Errorf("todo with id %d does not belong to user with id %d", id, userId)
+		return fmt.Errorf("todo does not belong to user")
 	}
 	if err := r.db.Delete(&todo).Error; err != nil {
 		return err
@@ -56,6 +56,9 @@ func (r *TodoRepo) UpdateTodo(id uuid.UUID, newTodo entity.Todo) error {
 	var todo entity.Todo
 	if err := r.db.First(&todo, id).Error; err != nil {
 		return err
+	}
+	if todo.UserId != newTodo.UserId {
+		return fmt.Errorf("todo does not belong to user")
 	}
 	if err := r.db.Model(&todo).Updates(newTodo).Error; err != nil {
 		return err

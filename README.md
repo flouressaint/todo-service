@@ -1,29 +1,42 @@
 # todo-service
 
-docker-compose up -d   
-go run cmd/app/main.go
+### Run
+    docker-compose up -d   
+    go run cmd/app/main.go
 
-Создание пользователя
-![Alt text](assets/README/image.png)
-Создание пользователя c username который уже есть
-![Alt text](assets/README/image-1.png)
-Создание todo
-![Alt text](assets/README/image-2.png)
-Получние todos
-![Alt text](assets/README/image-3.png)
-Удаление todo под пользователем, которому не принадлежит todo
-![Alt text](assets/README/image-4.png)
-Удаление todo под пользователем, которому принадлежит todo
-![Alt text](assets/README/image-5.png)
-Удаление todo по id, которого нет
-![Alt text](assets/README/image-6.png)
-Проверка удаления
-![Alt text](assets/README/image-7.png)
-Изменение todo, которой нет
-![Alt text](assets/README/image-8.png)
-Изменение todo под пользователем, которому не принадлежит todo
-![Alt text](assets/README/image-9.png)
-Изменение todo под пользователем, которому принадлежит todo
-![Alt text](assets/README/image-10.png)
-Проверка изменения
+### get access token
 ![Alt text](assets/README/image-11.png)
+
+### Auth  
+![Alt text](assets/README/image.png)
+![Alt text](assets/README/image-7.png)
+token expired
+    ![Alt text](assets/README/image-8.png)
+invalid token
+    ![Alt text](assets/README/image-10.png)
+
+### Get todos
+![Alt text](assets/README/image-9.png)
+
+### Create todo
+![Alt text](assets/README/image-2.png)
+![Alt text](assets/README/image-3.png)
+
+### Change todo
+![Alt text](assets/README/image-4.png)
+![Alt text](assets/README/image-5.png)
+
+### Delete todo
+![Alt text](assets/README/image-6.png)
+
+### Пользователь может получить доступ только к своим задачам
+![Alt text](assets/README/image-12.png)
+
+## SAST
+### goSec
+![Alt text](assets/README/image-13.png)
+Issues: 0
+
+### Bearer
+![Alt text](assets/README/image-14.png)
+42 checks were run and no failures were detected.
